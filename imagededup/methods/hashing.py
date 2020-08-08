@@ -121,12 +121,13 @@ class Hashing:
 
         return self._hash_func(image_pp) if isinstance(image_pp, np.ndarray) else None
 
-    def encode_images(self, image_dir=None):
+    def encode_images(self, image_dir=None, recursive=False):
         """
         Generate hashes for all images in a given directory of images.
 
         Args:
             image_dir: Path to the image directory.
+            recursive: Find images recursively in the image directory.
 
         Returns:
             dictionary: A dictionary that contains a mapping of filenames and corresponding 64 character hash string
@@ -144,8 +145,15 @@ class Hashing:
 
         image_dir = Path(image_dir)
 
+        if recursive:
+            glob = '**/*'
+        else:
+            glob = '*'
+
         files = [
-            i.absolute() for i in image_dir.glob('*') if not i.name.startswith('.')
+            i.absolute() for i in image_dir.glob(glob) if not (
+                i.name.startswith('.') or i.is_dir()
+                )
         ]  # ignore hidden files
 
         logger.info(f'Start: Calculating hashes...')
